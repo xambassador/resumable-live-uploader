@@ -1,8 +1,7 @@
-import { useState } from "react";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { useState, useRef } from "react";
+import { motion } from "framer-motion";
 import useMeasure from "react-use-measure";
 import UploadingFileCard from "./components/UploadingFileCard";
-import classNames from "./utils/classNames";
 import FolderIcon from "./icons/FolderIcon";
 
 // store each upload request for tracking them
@@ -34,6 +33,7 @@ const colors = [
 function App() {
   const [files, setFiles] = useState<any>([]);
   const [ref, { height }] = useMeasure();
+  const dropZoneRef = useRef<any>();
 
   const uploadFileInChunks = () => {};
 
@@ -44,6 +44,50 @@ function App() {
   const resumeFileUpload = () => {};
 
   const retryFileUpload = () => {};
+
+  const handleOnRemove = (file: any) => {
+    if (!file) return;
+    const arr = files.filter((f: any) => f !== file);
+    setFiles(arr);
+  };
+
+  // Drag and drop handler
+  const handleOnDrop = (ev: any) => {
+    const arr: any[] = [];
+    // Prevent default behavior (Prevent file from being opened)
+    ev.preventDefault();
+
+    // todo: Check file types. Only videos are supported
+    if (ev.dataTransfer.items) {
+      // Use DataTransferItemList interface to access the file(s)
+      [...ev.dataTransfer.items].forEach((item, i) => {
+        // If dropped items aren't files, reject them
+        if (item.kind === "file") {
+          arr.push(item.getAsFile());
+        }
+      });
+    } else {
+      // Use DataTransfer interface to access the file(s)
+      [...ev.dataTransfer.files].forEach((file, i) => {
+        arr.push(file);
+      });
+    }
+
+    setFiles([...files, ...arr]);
+  };
+
+  const handleOnDragOver = (ev: any) => {
+    // Prevent default behavior (Prevent file from being opened)
+    ev.preventDefault();
+  };
+
+  const handleOnDragEnter = () => {
+    dropZoneRef.current.classList.add("bg-green-100");
+  };
+
+  const handleOnDragLeave = () => {
+    dropZoneRef.current.classList.remove("bg-green-100");
+  };
 
   return (
     <main className="flex h-screen w-screen flex-col items-center justify-center bg-green-50">
@@ -59,6 +103,12 @@ function App() {
             <label
               className="mt-10 flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-indigo-400 bg-green-50 text-lg font-medium text-gray-800"
               htmlFor="file-upload"
+              id="drop-zone"
+              onDrop={handleOnDrop}
+              onDragOver={handleOnDragOver}
+              onDragEnter={handleOnDragEnter}
+              onDragLeave={handleOnDragLeave}
+              ref={dropZoneRef}
             >
               <FolderIcon />
               Upload or Drag and Drop your files
@@ -73,38 +123,36 @@ function App() {
               onChange={(e) => setFiles([...files, ...e.target.files])}
             />
           </div>
-          <AnimatePresence initial={false} mode="popLayout">
-            <motion.div
-              animate={{ height: height }}
-              transition={{ duration: 0.5 }}
-              key="items-container"
-            >
-              {files && files.length ? (
-                <>
-                  <motion.h2
-                    key="title"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 20 }}
-                    transition={{ type: "spring", duration: 0.3, delay: 0.5 }}
-                    className="mt-6 font-medium text-gray-500"
-                  >
-                    Uploading Files
-                  </motion.h2>
-                  <ul className="mt-6 w-full" ref={ref}>
-                    {files.map((file: any) => (
-                      <UploadingFileCard
-                        key={file.name}
-                        delay={0.6}
-                        color={colors[files.indexOf(file) % colors.length]}
-                        file={file}
-                      />
-                    ))}
-                  </ul>
-                </>
-              ) : null}
-            </motion.div>
-          </AnimatePresence>
+          <motion.div
+            animate={{ height: height }}
+            transition={{ duration: 0.5 }}
+            key="items-container"
+          >
+            {files && files.length ? (
+              <>
+                <motion.h2
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ type: "spring", duration: 0.3, delay: 0.5 }}
+                  className="mt-6 font-medium text-gray-500"
+                >
+                  Uploading Files
+                </motion.h2>
+                <ul className="mt-6 w-full" ref={ref}>
+                  {files.map((file: any) => (
+                    <UploadingFileCard
+                      key={file.name}
+                      delay={0.6}
+                      color={colors[files.indexOf(file) % colors.length]}
+                      file={file}
+                      onDelete={handleOnRemove}
+                    />
+                  ))}
+                </ul>
+              </>
+            ) : null}
+          </motion.div>
         </div>
       </div>
     </main>
