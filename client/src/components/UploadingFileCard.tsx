@@ -1,9 +1,14 @@
 import { motion } from "framer-motion";
+
+// ------------------------------------------------------------------------------------------
 import TrashIcon from "../icons/TrashIcon";
 import DoneIcon from "../icons/DoneIcon";
+
+// ------------------------------------------------------------------------------------------
 import classNames from "../utils/classNames";
 import { trimStringFromMiddle } from "../utils/strings";
 
+// ------------------------------------------------------------------------------------------
 export default function UploadingFileCard({
   color = "bg-green-400",
   delay = 0,

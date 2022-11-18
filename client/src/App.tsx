@@ -1,12 +1,16 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import useMeasure from "react-use-measure";
+
+// ------------------------------------------------------------------------------------------
 import UploadingFileCard from "./components/UploadingFileCard";
 import FolderIcon from "./icons/FolderIcon";
 
+// -------------------------------
 // store each upload request for tracking them
 const fileRequests = new WeakMap();
 
+// -------------------------------
 // default options of each requests
 const defaultOptions = {
   url: "/",
@@ -19,6 +23,7 @@ const defaultOptions = {
   onTimeout() {},
 };
 
+// -------------------------------
 const colors = [
   "bg-red-200",
   "bg-yellow-400",
@@ -30,27 +35,35 @@ const colors = [
   "bg-gray-600",
 ];
 
+// -------------------------------
 function App() {
   const [files, setFiles] = useState<any>([]);
   const [ref, { height }] = useMeasure();
   const dropZoneRef = useRef<any>();
 
+  // ----------
   const uploadFileInChunks = () => {};
 
+  // ----------
   const cancelFileUpload = () => {};
 
+  // ----------
   const clearUploads = () => {};
 
+  // ----------
   const resumeFileUpload = () => {};
 
+  // ----------
   const retryFileUpload = () => {};
 
+  // ----------
   const handleOnRemove = (file: any) => {
     if (!file) return;
     const arr = files.filter((f: any) => f !== file);
     setFiles(arr);
   };
 
+  // ----------
   // Drag and drop handler
   const handleOnDrop = (ev: any) => {
     const arr: any[] = [];
@@ -76,19 +89,23 @@ function App() {
     setFiles([...files, ...arr]);
   };
 
+  // ----------
   const handleOnDragOver = (ev: any) => {
     // Prevent default behavior (Prevent file from being opened)
     ev.preventDefault();
   };
 
+  // ----------
   const handleOnDragEnter = () => {
     dropZoneRef.current.classList.add("bg-green-100");
   };
 
+  // ----------
   const handleOnDragLeave = () => {
     dropZoneRef.current.classList.remove("bg-green-100");
   };
 
+  // ----------
   return (
     <main className="flex h-screen w-screen flex-col items-center justify-center bg-green-50">
       <div className="min-w-[28rem] rounded-3xl bg-white p-10 shadow-2xl">
