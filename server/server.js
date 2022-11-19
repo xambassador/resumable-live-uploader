@@ -57,7 +57,7 @@ app.post("/handshake", (req, res) => {
  * @route POST /upload
  * Upload file to server.
  */
-app.post("/upload", (req, res) => {
+app.post("/upload", async (req, res) => {
   const contentRange = req.headers["content-range"];
   const token = req.headers["x-file-token"];
 
@@ -78,6 +78,7 @@ app.post("/upload", (req, res) => {
   // ----------
   // bytes=0-999/10000
   const isValidContentRange = contentRange.match(/bytes=(\d+)-(\d+)\/(\d+)/);
+
   if (!isValidContentRange) {
     return res
       .status(400)
@@ -111,35 +112,33 @@ app.post("/upload", (req, res) => {
     return res.sendStatus(200);
   });
 
-  bb.on("file", (name, file, info) => {
-    const { filename, encoding, mimeType } = info;
+  bb.on("file", async (_, file, info) => {
+    const { filename } = info;
     const filepath = getFilePath(filename, token);
-    getFileInfo(filepath)
-      .then((stats) => {
-        if (stats.size !== startingByte) {
-          return res.status(400).json({ message: "Bad Chunk Starting Byte" });
-        }
-
-        file
-          .pipe(fs.createWriteStream(filepath, { flags: "a" }))
-          .on("error", (e) => {
-            console.log("Failed to upload file");
-            return res
-              .status(500)
-              .json({ message: "Something is wrong", success: false });
-          });
-      })
-      .catch((error) => {
-        console.log("Failed to get file details", error);
-        return res.status(404).json({
-          message: "No file found with provided credentials",
-          credentials: {
-            token,
-            filename,
-          },
-          success: false,
+    try {
+      const stats = await getFileInfo(filepath);
+      if (stats.size !== startingByte) {
+        return res.status(400).json({ message: "Bad Chunk Starting Byte" });
+      }
+      file
+        .pipe(fs.createWriteStream(filepath, { flags: "a" }))
+        .on("error", (e) => {
+          console.log("Failed to upload file");
+          return res
+            .status(500)
+            .json({ message: "Something is wrong", success: false });
         });
+    } catch (error) {
+      console.log("Failed to get file details", error);
+      return res.status(404).json({
+        message: "No file found with provided credentials",
+        credentials: {
+          token,
+          filename,
+        },
+        success: false,
       });
+    }
   });
 
   req.pipe(bb);
