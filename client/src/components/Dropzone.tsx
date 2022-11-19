@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { motion, useAnimation } from "framer-motion";
+
+// ------------------------------------------------------------------------------------------
 import classNames from "../utils/classNames";
 
+// ------------------------------------------------------------------------------------------
 const getRandomTransformOrigin = () => {
   const value = (16 + 40 * Math.random()) / 100;
   const value2 = (15 + 36 * Math.random()) / 100;
@@ -11,10 +14,13 @@ const getRandomTransformOrigin = () => {
   };
 };
 
+// ------------------------------------------------------------------------------------------
 const getRandomDelay = () => -(Math.random() * 0.7 + 0.05);
 
+// ------------------------------------------------------------------------------------------
 const randomDuration = () => Math.random() * 0.07 + 0.23;
 
+// ------------------------------------------------------------------------------------------
 const variants = {
   start: (i: number) => ({
     rotate: i % 2 === 0 ? [-1, 1.3, 0] : [1, -1.4, 0],
@@ -29,6 +35,7 @@ const variants = {
   },
 };
 
+// ------------------------------------------------------------------------------------------
 export default function Dropzone({
   children,
   htmlFor = "dropzone",
@@ -90,9 +97,7 @@ export default function Dropzone({
   };
 
   // ----------
-  const handleOnDragEnter = () => {
-    setIsDragging(true);
-  };
+  const handleOnDragEnter = () => setIsDragging(true);
 
   // ----------
   const handleOnDragLeave = () => {

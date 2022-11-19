@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
+// ------------------------------------------------------------------------------------------
 const FILE_STATUS = {
   PENDING: "pending",
   UPLOADING: "uploading",
@@ -10,24 +11,32 @@ const FILE_STATUS = {
   IDLE: "idle",
 };
 
+// -------------------------------
 export default function useUploader(file: any) {
   const [isReady, setIsReady] = useState(false);
   const [request, setRequest] = useState<any>(null);
   const [status, setStatus] = useState(FILE_STATUS.IDLE);
-  const tokenRef = useRef<string | null | undefined>(null);
   const [percentage, setPercentage] = useState(0);
+
+  // ----------
+  const tokenRef = useRef<string | null | undefined>(null);
+
+  // ----------
   const url = "http://localhost:3001/upload";
 
+  // ----------
   const handleOnProgress = (e: any, loaded: any, filesize: number) => {
     const percentage = Math.round((loaded / filesize) * 100);
     setPercentage(percentage);
   };
 
+  // ----------
   const handleOnPause = () => {
     request.abort();
     setStatus(FILE_STATUS.PAUSED);
   };
 
+  // ----------
   const handleOnResume = () => {
     setStatus(FILE_STATUS.PENDING);
     fetch(
@@ -40,19 +49,19 @@ export default function useUploader(file: any) {
       });
   };
 
-  const handleOnError = (e: any) => {
-    setStatus(FILE_STATUS.ERROR);
-  };
+  // ----------
+  const handleOnError = (e: any) => setStatus(FILE_STATUS.ERROR);
 
-  const handleOnAbort = (e: any) => {
-    setStatus(FILE_STATUS.PAUSED);
-  };
+  // ----------
+  const handleOnAbort = (e: any) => setStatus(FILE_STATUS.PAUSED);
 
+  // ----------
   const handleOnComplete = (e: any) => {
     setPercentage(100);
     setStatus(FILE_STATUS.COMPLETE);
   };
 
+  // ----------
   const handleOnRemove = (onDelete: (file: File | null | undefined) => {}) => {
     onDelete(file);
     fetch(
@@ -68,6 +77,7 @@ export default function useUploader(file: any) {
       });
   };
 
+  // ----------
   const uploadFileInChunks = async (token: string, startingByte: number) => {
     if (!file) return;
     const req = new XMLHttpRequest();
@@ -110,6 +120,7 @@ export default function useUploader(file: any) {
     setRequest(req);
   };
 
+  // ----------
   const uploadFile = async () => {
     /**
      Handshake with server for initiating an upload request
@@ -142,12 +153,14 @@ export default function useUploader(file: any) {
       });
   };
 
+  // ----------
   useEffect(() => {
     setTimeout(() => {
       setIsReady(true);
     }, 2000);
   }, []);
 
+  // ----------
   useEffect(() => {
     isReady &&
       setTimeout(() => {
@@ -156,6 +169,7 @@ export default function useUploader(file: any) {
       }, 2000);
   }, [isReady]);
 
+  // ----------
   return {
     ready: isReady,
     status,

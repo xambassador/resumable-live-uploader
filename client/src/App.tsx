@@ -5,24 +5,9 @@ import useMeasure from "react-use-measure";
 // ------------------------------------------------------------------------------------------
 import UploadingFileCard from "./components/UploadingFileCard";
 import Dropzone from "./components/Dropzone";
+
+// ------------------------------------------------------------------------------------------
 import FolderIcon from "./icons/FolderIcon";
-
-// -------------------------------
-// store each upload request for tracking them
-const fileRequests = new WeakMap();
-
-// -------------------------------
-// default options of each requests
-const defaultOptions = {
-  url: "/",
-  fileId: null,
-  startingByte: 0,
-  onComplete() {},
-  onProgress() {},
-  onError() {},
-  onAbort() {},
-  onTimeout() {},
-};
 
 // -------------------------------
 function App() {
@@ -37,14 +22,10 @@ function App() {
   };
 
   // ----------
-  const handleOnItemsDrop = (items: any) => {
-    setFiles([...files, ...items]);
-  };
+  const handleOnItemsDrop = (items: any) => setFiles([...files, ...items]);
 
   // ----------
-  const handleOnChange = (e: any) => {
-    setFiles([...files, ...e.target.files]);
-  };
+  const handleOnChange = (e: any) => setFiles([...files, ...e.target.files]);
 
   // ----------
   return (

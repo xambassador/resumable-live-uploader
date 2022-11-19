@@ -12,6 +12,7 @@ const colors = [
   "bg-gray-600",
 ];
 
+// -------------------------------
 export default function useRandomColors() {
   const [color] = useState(colors[Math.floor(Math.random() * colors.length)]);
   return { color };

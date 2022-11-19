@@ -5,18 +5,29 @@ const path = require("path");
 const fs = require("fs");
 const busboy = require("busboy");
 const { promisify } = require("util");
+
+// ----------
 const getFileInfo = promisify(fs.stat);
 
+// ----------
 const port = process.env.PORT || 3001;
 
+// ----------
 const app = express();
 
+// ----------
 app.use(cors());
 app.use(express.json());
 
+// ----------
 const getFilePath = (fileName, fileToken) =>
   `./uploads/upload-${fileToken}-${fileName}`;
 
+// ----------
+/**
+ * @route POST /handshake
+ * Performing a token exchange with the client
+ */
 app.post("/handshake", (req, res) => {
   if (!req.body || !req.body.fileName) {
     res.status(400).json({
@@ -27,7 +38,9 @@ app.post("/handshake", (req, res) => {
   }
 
   const fileName = req.body.fileName;
+  // ----- Token
   const fileToken = uuid.v4();
+  // ----- Creating empty file
   fs.createWriteStream(getFilePath(fileName, fileToken), {
     flags: "w",
   });
@@ -39,6 +52,11 @@ app.post("/handshake", (req, res) => {
   });
 });
 
+// ----------
+/**
+ * @route POST /upload
+ * Upload file to server.
+ */
 app.post("/upload", (req, res) => {
   const contentRange = req.headers["content-range"];
   const token = req.headers["x-file-token"];
@@ -57,6 +75,7 @@ app.post("/upload", (req, res) => {
     });
   }
 
+  // ----------
   // bytes=0-999/10000
   const isValidContentRange = contentRange.match(/bytes=(\d+)-(\d+)\/(\d+)/);
   if (!isValidContentRange) {
@@ -126,6 +145,11 @@ app.post("/upload", (req, res) => {
   req.pipe(bb);
 });
 
+// ----------
+/**
+ * @route GET /upload-status
+ * For performing resume upload functionality.
+ */
 app.get("/upload-status", (req, res) => {
   if (!req.query || !req.query.token || !req.query.filename) {
     return res.status(400).json({
@@ -153,6 +177,11 @@ app.get("/upload-status", (req, res) => {
     });
 });
 
+// ----------
+/**
+ * @route DELETE /delete-upload
+ * Perform cleanup of the file from disk.
+ */
 app.delete("/delete-upload", (req, res) => {
   if (!req.query || !req.query.token || !req.query.filename) {
     return res.status(400).json({
@@ -178,6 +207,7 @@ app.delete("/delete-upload", (req, res) => {
   });
 });
 
+// ----------
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

@@ -1,4 +1,3 @@
-import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // ------------------------------------------------------------------------------------------
@@ -10,11 +9,13 @@ import ResumeIcon from "../icons/Resume";
 // ------------------------------------------------------------------------------------------
 import classNames from "../utils/classNames";
 import { trimStringFromMiddle } from "../utils/strings";
-import useUploader from "../hooks/useUploader";
 
+// ------------------------------------------------------------------------------------------
+import useUploader from "../hooks/useUploader";
 import useThumbnail from "../hooks/useThumbnail";
 import useRandomColors from "../hooks/useRandomColors";
 
+// ------------------------------------------------------------------------------------------
 const FILE_STATUS = {
   PENDING: "pending",
   UPLOADING: "uploading",
@@ -41,6 +42,7 @@ export default function UploadingFileCard({
   const { ready, status, percentage, onResume, onRemove, onPause } =
     useUploader(file);
 
+  // ----------
   return (
     <motion.li
       initial={{ scale: 0.9, y: 20, opacity: 0 }}
