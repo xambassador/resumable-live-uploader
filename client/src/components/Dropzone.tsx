@@ -36,6 +36,18 @@ const variants = {
 };
 
 // ------------------------------------------------------------------------------------------
+const checkValidFileType = (type: string) => {
+  const validTypes = [
+    "video",
+    "image",
+    "application/zip",
+    "application/vnd.rar",
+    "audio",
+  ];
+  return validTypes.find((value: string) => type.includes(value));
+};
+
+// ------------------------------------------------------------------------------------------
 export default function Dropzone({
   children,
   htmlFor = "dropzone",
@@ -52,6 +64,7 @@ export default function Dropzone({
   // ----------
   // Drag and drop handler
   const handleOnDrop = (ev: any) => {
+    controls.start("reset");
     // Prevent default behavior (Prevent file from being opened)
     ev.preventDefault();
 
@@ -85,10 +98,10 @@ export default function Dropzone({
   const handleOnDragOver = (ev: any) => {
     // Prevent default behavior (Prevent file from being opened)
     ev.preventDefault();
-    let isValidFile = true;
+    let isValidFile = false;
     [...ev.dataTransfer.items].forEach((item) => {
-      if (item.kind === "file" && !item.type.includes("video")) {
-        isValidFile = false;
+      if (item.kind === "file" && checkValidFileType(item.type)) {
+        isValidFile = true;
       }
     });
 

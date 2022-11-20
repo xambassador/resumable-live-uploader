@@ -206,6 +206,13 @@ app.delete("/delete-upload", (req, res) => {
   });
 });
 
+app.get("/heartbeat", (req, res) => {
+  res.status(200).json({
+    message: "service is running",
+    success: true,
+  });
+});
+
 // ----------
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

@@ -12,21 +12,49 @@ const FILE_STATUS = {
 };
 
 // -------------------------------
-export default function useUploader(file: any) {
+const ping = ({ url, timeout }: { url: string; timeout: number }) => {
+  return new Promise((resolve) => {
+    const isOnline = () => resolve(true);
+    const isOffline = () => resolve(false);
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.onerror = isOffline;
+    xhr.ontimeout = isOffline;
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState === xhr.HEADERS_RECEIVED) {
+        if (xhr.status) {
+          isOnline();
+        } else {
+          isOffline();
+        }
+      }
+    };
+
+    xhr.open("GET", url);
+    xhr.timeout = timeout;
+    xhr.send();
+  });
+};
+
+// -------------------------------
+export default function useUploader(file: any, onComplete?: () => void) {
   const [isReady, setIsReady] = useState(false);
   const [request, setRequest] = useState<any>(null);
   const [status, setStatus] = useState(FILE_STATUS.IDLE);
   const [percentage, setPercentage] = useState(0);
+  const [uploadedBytes, setUploadedBytes] = useState(0);
 
   // ----------
   const tokenRef = useRef<string | null | undefined>(null);
 
   // ----------
-  const url = "http://localhost:3001/upload";
+  const url = `http://${location.hostname}:3001/upload`;
 
   // ----------
   const handleOnProgress = (e: any, loaded: any, filesize: number) => {
     const percentage = Math.round((loaded / filesize) * 100);
+    setUploadedBytes(loaded);
     setPercentage(percentage);
   };
 
@@ -39,13 +67,60 @@ export default function useUploader(file: any) {
   // ----------
   const handleOnResume = () => {
     setStatus(FILE_STATUS.PENDING);
-    fetch(
-      `http://localhost:3001/upload-status?token=${tokenRef.current}&filename=${file?.name}`
-    )
-      .then((res) => res.json())
-      .then((res) => {
-        setStatus(FILE_STATUS.UPLOADING);
-        uploadFileInChunks(tokenRef.current as string, res.totalChunkUploaded);
+    ping({
+      url: `http://${location.hostname}:3001/heartbeat`,
+      timeout: 500,
+    }).then((v) => {
+      if (v) {
+        fetch(
+          `http://${location.hostname}:3001/upload-status?token=${tokenRef.current}&filename=${file?.name}`
+        )
+          .then((res) => res.json())
+          .then((res) => {
+            setStatus(FILE_STATUS.UPLOADING);
+            uploadFileInChunks(
+              tokenRef.current as string,
+              res.totalChunkUploaded
+            );
+          })
+          .catch((e) => {
+            setStatus(FILE_STATUS.FAILED);
+          });
+      } else {
+        setStatus(FILE_STATUS.FAILED);
+      }
+    });
+  };
+
+  // ----------
+  const handleOnRetry = () => {
+    setStatus(FILE_STATUS.PENDING);
+    ping({
+      url: `http://${location.hostname}:3001/heartbeat`,
+      timeout: 500,
+    })
+      .then((v) => {
+        if (v) {
+          fetch(
+            `http://${location.hostname}:3001/upload-status?token=${tokenRef.current}&filename=${file?.name}`
+          )
+            .then((res) => res.json())
+            .then((res) => {
+              setStatus(FILE_STATUS.UPLOADING);
+              uploadFileInChunks(
+                tokenRef.current as string,
+                res.totalChunkUploaded
+              );
+            })
+            .catch((e) => {
+              console.log(e);
+            });
+        } else {
+          setStatus(FILE_STATUS.FAILED);
+        }
+      })
+      .catch((e) => {
+        setStatus(FILE_STATUS.FAILED);
       });
   };
 
@@ -59,22 +134,29 @@ export default function useUploader(file: any) {
   const handleOnComplete = (e: any) => {
     setPercentage(100);
     setStatus(FILE_STATUS.COMPLETE);
+    onComplete && onComplete();
   };
 
   // ----------
   const handleOnRemove = (onDelete: (file: File | null | undefined) => {}) => {
     onDelete(file);
-    fetch(
-      `http://localhost:3001/delete-upload?filename=${file?.name}&token=${tokenRef.current}`,
-      {
-        method: "DELETE",
-      }
-    )
-      .then((res) => res.json())
-      .then((res) => {})
-      .catch((e) => {
-        console.log(e);
-      });
+    ping({ url: `http://${location.hostname}:3001/heartbeat`, timeout: 500 })
+      .then((v) => {
+        if (v) {
+          fetch(
+            `http://${location.hostname}:3001/delete-upload?filename=${file?.name}&token=${tokenRef.current}`,
+            {
+              method: "DELETE",
+            }
+          )
+            .then((res) => res.json())
+            .then((res) => {})
+            .catch((e) => {
+              console.log(e);
+            });
+        }
+      })
+      .catch((e) => {});
   };
 
   // ----------
@@ -129,26 +211,37 @@ export default function useUploader(file: any) {
      new empty file with combining token and filename.
      */
     setStatus(FILE_STATUS.PENDING);
-    fetch("http://localhost:3001/handshake", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ fileName: file?.name }),
-    })
-      .then(async (res) => res.json())
-      .then(async (res) => {
-        /**
-         Receiving ok and token in response from server indicating that handshake is complete and client is now
-         ready to upload file to server in small chunks.
-         Token is used to identify the file on server and for further communication with server.
-         */
-        tokenRef.current = res.token;
-        setStatus(FILE_STATUS.UPLOADING);
-        await uploadFileInChunks(res.token as string, 0);
+    ping({ url: `http://${location.hostname}:3001/heartbeat`, timeout: 500 })
+      .then((v) => {
+        if (v) {
+          fetch(`http://${location.hostname}:3001/handshake`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ fileName: file?.name }),
+          })
+            .then(async (res) => res.json())
+            .then(async (res) => {
+              /**
+                 Receiving ok and token in response from server indicating that handshake is complete and client is now
+                 ready to upload file to server in small chunks.
+                 Token is used to identify the file on server and for further communication with server.
+                 */
+              tokenRef.current = res.token;
+              setStatus(FILE_STATUS.UPLOADING);
+              await uploadFileInChunks(res.token as string, 0);
+            })
+            .catch((err) => {
+              console.log(err);
+              setStatus(FILE_STATUS.FAILED);
+            });
+        } else {
+          setStatus(FILE_STATUS.FAILED);
+        }
       })
-      .catch((err) => {
-        console.log(err);
+      .catch((e) => {
+        console.log("Error from ping", e);
         setStatus(FILE_STATUS.FAILED);
       });
   };
@@ -174,8 +267,10 @@ export default function useUploader(file: any) {
     ready: isReady,
     status,
     percentage,
+    uploadedBytes,
     onPause: handleOnPause,
     onResume: handleOnResume,
     onRemove: handleOnRemove,
+    onRetry: handleOnRetry,
   };
 }
