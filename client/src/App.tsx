@@ -87,7 +87,7 @@ function App() {
             Upload your files
           </h1>
           <p className="mt-2 text-center font-sans text-gray-500">
-            Files should be video and images.
+            Files should be video, images, audio, zip or rar.
           </p>
           <div className="relative w-full">
             <Dropzone htmlFor="file-upload" onItemsDrop={handleOnItemsDrop}>
