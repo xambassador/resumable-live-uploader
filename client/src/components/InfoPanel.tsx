@@ -29,7 +29,7 @@ export default function InfoPanel({
 }) {
   return (
     <div className="ml-4 mr-2 h-10 w-9/12">
-      <div className="flex justify-between text-sm font-medium text-slate-700">
+      <div className="flex justify-between text-sm font-medium">
         <span>{trimStringFromMiddle(file?.name, 30)}</span>
         <AnimatePresence initial={false}>
           {ready && status !== FILE_STATUS.PENDING && (
@@ -37,7 +37,7 @@ export default function InfoPanel({
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               className={classNames(
-                "text-slate-500",
+                "text-slate-300",
                 status === FILE_STATUS.ERROR ? "text-red-400" : "",
                 status === FILE_STATUS.FAILED ? "text-red-400" : ""
               )}
@@ -49,9 +49,8 @@ export default function InfoPanel({
             <motion.span
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              className={classNames("text-slate-500")}
             >
-              Initializing
+              Initializing...
             </motion.span>
           )}
         </AnimatePresence>
@@ -61,7 +60,7 @@ export default function InfoPanel({
           {ready && (
             <motion.p
               className={classNames(
-                "mt-1 text-sm text-gray-600",
+                "mt-1 text-sm text-slate-500",
                 status === FILE_STATUS.ERROR ? "text-red-400" : "",
                 status === FILE_STATUS.FAILED ? "text-red-400" : ""
               )}
@@ -86,7 +85,7 @@ export default function InfoPanel({
               key="initializing"
               exit={{ y: 20, opacity: 0 }}
               transition={{ type: "spring", duration: 0.4 }}
-              className="mt-2 text-sm text-gray-600"
+              className="mt-2 text-sm"
             >
               Initializing...
             </motion.span>

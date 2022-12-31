@@ -37,7 +37,7 @@ export default function UploadingFileCard({
     onRemove,
     onPause,
     onRetry,
-  } = useUploader(file, handleOnComplete);
+  } = useUploader(file, { onCompleted: handleOnComplete });
 
   // ----------
   return (

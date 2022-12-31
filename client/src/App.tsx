@@ -12,66 +12,30 @@ import CancleIcon from "./icons/CancelIcon";
 import DoneIcon from "./icons/DoneIcon";
 import PauseIcon from "./icons/Pause";
 
+// ------------------------------------------------------------------------------------------
+import { useUploadContext } from "./context";
+
 // -------------------------------
 function App() {
-  const [files, setFiles] = useState<any>([]);
   const [ref, { height }] = useMeasure();
-  const [error, setError] = useState("");
-  const [totalCompleted, setTotalCompleted] = useState(0);
-  const [totalPaused, setTotalPaused] = useState(0);
-  const [totalCancelled, setTotalCancelled] = useState(0);
-
-  // ----------
-  const handleOnRemove = (file: any) => {
-    if (!file) return;
-    const arr = files.filter((f: any) => f !== file);
-    setTotalCancelled(totalCancelled + 1);
-    setFiles(arr);
-  };
-
-  // ----------
-  const handleOnComplete = () => {
-    setTotalCompleted(totalCompleted + 1);
-  };
-
-  // ----------
-  const handleOnPause = () => {
-    setTotalPaused(totalPaused + 1);
-  };
-
-  // ----------
-  const handleOnResume = () => {
-    setTotalPaused(totalPaused - 1);
-  };
-
-  // ----------
-  const handleOnItemsDrop = (items: any) => {
-    setError("");
-    const arr = [...files, ...items];
-    if (arr.length < 4) {
-      setFiles(arr);
-    } else {
-      setFiles([]);
-      setError("Can't add more then 3 items");
-    }
-  };
-
-  // ----------
-  const handleOnChange = (e: any) => {
-    setError("");
-    const arr = [...files, ...e.target.files];
-    if (arr.length < 4) {
-      setFiles(arr);
-    } else {
-      setFiles([]);
-      setError("Can't add more then 3 items");
-    }
-  };
+  const {
+    files,
+    error,
+    totalCancelled,
+    totalCompleted,
+    totalPaused,
+    handleOnItemsDrop,
+    handleOnComplete,
+    handleOnPause,
+    handleOnResume,
+    handleOnChange,
+    handleOnRemove,
+  } = useUploadContext();
 
   // ----------
   return (
-    <main className="flex h-screen w-screen flex-col items-center justify-center bg-green-50">
-      <div className="min-w-[35rem] rounded-3xl bg-white p-10 pb-8 shadow-2xl">
+    <main className="flex h-screen w-screen flex-col items-center justify-center bg-slate-900">
+      <div className="min-w-[35rem] rounded-3xl bg-slate-800 p-10 pb-8 text-slate-400 shadow-2xl">
         <div className="py-8">
           {error && (
             <motion.p
@@ -83,10 +47,10 @@ function App() {
               {error}
             </motion.p>
           )}
-          <h1 className="text-center font-sans text-2xl font-medium text-gray-900">
+          <h1 className="text-center font-sans text-2xl font-medium text-slate-50">
             Upload your files
           </h1>
-          <p className="mt-2 text-center font-sans text-gray-500">
+          <p className="mt-2 text-center font-sans">
             Files should be video, images, audio, zip or rar.
           </p>
           <div className="relative w-full">
@@ -124,7 +88,7 @@ function App() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
                 transition={{ type: "spring", duration: 0.3, delay: 0.5 }}
-                className="mt-6 font-medium text-gray-500"
+                className="mt-6 font-medium text-slate-200"
               >
                 Uploading Files
               </motion.h2>
@@ -145,8 +109,11 @@ function App() {
                       file={file}
                       // @ts-ignore
                       onDelete={handleOnRemove}
+                      // @ts-ignore
                       handleOnComplete={handleOnComplete}
+                      // @ts-ignore
                       handleOnPause={handleOnPause}
+                      // @ts-ignore
                       handleOnResume={handleOnResume}
                     />
                   ))}

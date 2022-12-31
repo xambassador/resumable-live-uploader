@@ -38,33 +38,59 @@ const ping = ({ url, timeout }: { url: string; timeout: number }) => {
 };
 
 // -------------------------------
-export default function useUploader(file: any, onComplete?: () => void) {
+interface IUploadEvents {
+  onCompleted?: () => void;
+  onProgress?: (
+    e: any,
+    loaded: any,
+    filesize: number,
+    percentage: number
+  ) => void;
+  onError?: (e: any) => void;
+  onAbort?: (e: any) => void;
+}
+
+// -------------------------------
+export default function useUploader(file: any, customEvents: IUploadEvents) {
+  // Is the file ready to be uploaded
   const [isReady, setIsReady] = useState(false);
+  // Store the request object so we can track the progress
   const [request, setRequest] = useState<any>(null);
+  // Current status of the file
   const [status, setStatus] = useState(FILE_STATUS.IDLE);
+  // Percentage of the file uploaded
   const [percentage, setPercentage] = useState(0);
+  // Bytes uploaded
   const [uploadedBytes, setUploadedBytes] = useState(0);
 
   // ----------
+  // Store the token in a ref so we can access it in the event handlers
   const tokenRef = useRef<string | null | undefined>(null);
 
   // ----------
+  // Upload url
   const url = `http://${location.hostname}:3001/upload`;
 
   // ----------
+  // onprogress event handler
   const handleOnProgress = (e: any, loaded: any, filesize: number) => {
     const percentage = Math.round((loaded / filesize) * 100);
+    file.percentage = percentage;
     setUploadedBytes(loaded);
     setPercentage(percentage);
+    customEvents.onProgress &&
+      customEvents.onProgress(e, loaded, filesize, percentage);
   };
 
   // ----------
+  // onPaused event handler
   const handleOnPause = () => {
     request.abort();
     setStatus(FILE_STATUS.PAUSED);
   };
 
   // ----------
+  // onResumed event handler
   const handleOnResume = () => {
     setStatus(FILE_STATUS.PENDING);
     ping({
@@ -93,6 +119,7 @@ export default function useUploader(file: any, onComplete?: () => void) {
   };
 
   // ----------
+  // onRetry event handler
   const handleOnRetry = () => {
     setStatus(FILE_STATUS.PENDING);
     ping({
@@ -125,16 +152,19 @@ export default function useUploader(file: any, onComplete?: () => void) {
   };
 
   // ----------
+  // onerror event handler
   const handleOnError = (e: any) => setStatus(FILE_STATUS.ERROR);
 
   // ----------
+  // onabort event handler
   const handleOnAbort = (e: any) => setStatus(FILE_STATUS.PAUSED);
 
   // ----------
+  // onload event handler
   const handleOnComplete = (e: any) => {
     setPercentage(100);
     setStatus(FILE_STATUS.COMPLETE);
-    onComplete && onComplete();
+    customEvents.onCompleted && customEvents.onCompleted();
   };
 
   // ----------
@@ -160,16 +190,23 @@ export default function useUploader(file: any, onComplete?: () => void) {
   };
 
   // ----------
+  // Upload the file in small chunks
   const uploadFileInChunks = async (token: string, startingByte: number) => {
     if (!file) return;
+    // Create a new request object
     const req = new XMLHttpRequest();
+    // Create a new form data object
     const formData = new FormData();
+    // Create a new file chunk
     const chunk = file.slice(startingByte);
 
+    // Add the file chunk to the form data
     formData.append("chunk", chunk, file.name);
     formData.append("token", token);
 
+    // Open the request
     req.open("POST", url, true);
+    // Set the custom request headers
     req.setRequestHeader("X-File-Token", token);
     req.setRequestHeader("X-Filename", file.name);
     // req.setRequestHeader("Content-Length", chunk.size); // Browser set this header for us
@@ -192,6 +229,8 @@ export default function useUploader(file: any, onComplete?: () => void) {
     req.onerror = (e) => handleOnError(e);
     req.ontimeout = (e) => {};
     req.upload.onprogress = (e) => {
+      // calculate total loaded bytes by adding startingByte and e.loaded.
+      // e.loaded is total uploaded bytes in current request
       const loaded = startingByte + e.loaded;
       handleOnProgress(e, loaded, file.size);
     };
@@ -247,6 +286,7 @@ export default function useUploader(file: any, onComplete?: () => void) {
   };
 
   // ----------
+  // Effect that register a fake timeout to show progress bar animation
   useEffect(() => {
     setTimeout(() => {
       setIsReady(true);
@@ -254,6 +294,7 @@ export default function useUploader(file: any, onComplete?: () => void) {
   }, []);
 
   // ----------
+  // Effect that trigger uploadFile when isReady is true
   useEffect(() => {
     isReady &&
       setTimeout(() => {

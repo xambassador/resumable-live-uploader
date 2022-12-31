@@ -122,7 +122,7 @@ export default function Dropzone({
   return (
     <motion.label
       className={classNames(
-        "mt-10 flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-indigo-400 bg-green-50 text-lg font-medium text-gray-800",
+        "my-10 flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-400 bg-slate-700 text-lg font-medium text-slate-200",
         isDragging ? "bg-green-200" : "",
         isValidDragItem ? "" : "border-red-400 bg-red-300"
       )}
