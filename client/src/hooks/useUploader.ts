@@ -162,9 +162,9 @@ export default function useUploader(file: any, customEvents: IUploadEvents) {
   // ----------
   // onload event handler
   const handleOnComplete = (e: any) => {
+    customEvents.onCompleted && customEvents.onCompleted();
     setPercentage(100);
     setStatus(FILE_STATUS.COMPLETE);
-    customEvents.onCompleted && customEvents.onCompleted();
   };
 
   // ----------

@@ -54,7 +54,7 @@ function UploadProvider({ children }: { children: ReactNode }) {
 
   // ----------
   const handleOnComplete = () => {
-    setTotalCompleted(totalCompleted + 1);
+    setTotalCompleted((prevState) => prevState + 1);
   };
 
   // ----------

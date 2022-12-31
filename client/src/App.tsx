@@ -68,17 +68,20 @@ function App() {
               onChange={handleOnChange}
             />
           </div>
-          <div className="mt-4 flex w-full items-center">
-            <div className="mr-2 flex w-10">
-              <span className="mr-1">{totalCompleted}</span> <DoneIcon />
-            </div>
-            <div className="mr-2 flex w-10">
-              <span className="mr-1">{totalCancelled}</span>
-              <CancleIcon />
-            </div>
-            <div className="flex">
-              <span className="mr-1">{totalPaused}</span>
-              <PauseIcon />
+          <div className="mt-4 flex items-center">
+            <span className="flex-1">File status</span>
+            <div className="flex flex-1 items-center justify-end">
+              <div className="mr-2 flex w-10">
+                <span className="mr-1">{totalCompleted}</span> <DoneIcon />
+              </div>
+              <div className="mr-2 flex w-10">
+                <span className="mr-1">{totalCancelled}</span>
+                <CancleIcon />
+              </div>
+              <div className="flex">
+                <span className="mr-1">{totalPaused}</span>
+                <PauseIcon />
+              </div>
             </div>
           </div>
           {files && files.length ? (
@@ -90,7 +93,7 @@ function App() {
                 transition={{ type: "spring", duration: 0.3, delay: 0.5 }}
                 className="mt-6 font-medium text-slate-200"
               >
-                Uploading Files
+                Uploading Your Files
               </motion.h2>
             </>
           ) : null}
