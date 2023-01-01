@@ -39,3 +39,5 @@ node runner.js
 ![Screenshot - Uploading complete Screen](/assets/Screenshot_6.png "Uploading complete Screen")
 <br/>
 ![Screenshot - Error Screen](/assets/Screenshot_7.png "Error Screen")
+<br/>
+![Screenshot - Error Screen](/assets/Screenshot_8.png "Error Screen")
