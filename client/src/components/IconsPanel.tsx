@@ -17,6 +17,18 @@ const FILE_STATUS = {
   IDLE: "idle",
 };
 
+// -------------------------------
+interface IIconsPanel {
+  status: string;
+  file: File | undefined;
+  onDelete: (file: File | undefined | null) => {};
+  onPause: () => void;
+  onResume: () => void;
+  onRemove: (onDelete: (file: File | undefined | null) => {}) => void;
+  onRetry: () => void;
+}
+
+// ------------------------------------------------------------------------------------------
 export default function IconsPanel({
   status,
   file,
@@ -25,15 +37,7 @@ export default function IconsPanel({
   onResume,
   onRemove,
   onRetry,
-}: {
-  status: string;
-  file: File | undefined;
-  onDelete: (file: File | undefined | null) => {};
-  onPause: () => void;
-  onResume: () => void;
-  onRemove: (onDelete: (file: File | undefined | null) => {}) => void;
-  onRetry: () => void;
-}) {
+}: IIconsPanel) {
   return (
     <div className="flex items-center">
       {status === FILE_STATUS.COMPLETE && (

@@ -1,7 +1,10 @@
 import { motion, AnimatePresence } from "framer-motion";
+// ------------------------------------------------------------------------------------------
+
 import classNames from "../utils/classNames";
 import { trimStringFromMiddle } from "../utils/strings";
 
+// ------------------------------------------------------------------------------------------
 const FILE_STATUS = {
   PENDING: "pending",
   UPLOADING: "uploading",
@@ -12,6 +15,16 @@ const FILE_STATUS = {
   IDLE: "idle",
 };
 
+interface IInfoPanel {
+  file: File | undefined;
+  ready: boolean;
+  percentage: number;
+  uploadedBytes: number;
+  color: string;
+  status: string;
+}
+
+// ------------------------------------------------------------------------------------------
 export default function InfoPanel({
   file,
   ready,
@@ -19,14 +32,7 @@ export default function InfoPanel({
   uploadedBytes,
   color,
   status,
-}: {
-  file: File | undefined;
-  ready: boolean;
-  percentage: number;
-  uploadedBytes: number;
-  color: string;
-  status: string;
-}) {
+}: IInfoPanel) {
   return (
     <div className="ml-4 mr-2 h-10 w-9/12">
       <div className="flex justify-between text-sm font-medium">

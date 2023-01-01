@@ -26,8 +26,10 @@ export function getVideoCover(file: File, seekTo = 0.0) {
         canvas.height = videoPlayer.videoHeight;
         // draw the video frame to canvas
         const ctx = canvas.getContext("2d");
+        // @ts-ignore
         ctx.drawImage(videoPlayer, 0, 0, canvas.width, canvas.height);
         // return the canvas image as a blob
+        // @ts-ignore
         ctx.canvas.toBlob(
           (blob) => {
             resolve(blob);

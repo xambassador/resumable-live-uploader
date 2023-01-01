@@ -12,7 +12,13 @@ const FILE_STATUS = {
 };
 
 // -------------------------------
-const ping = ({ url, timeout }: { url: string; timeout: number }) => {
+interface IPingOptions {
+  url: string;
+  timeout: number;
+}
+
+// -------------------------------
+const ping = ({ url, timeout }: IPingOptions) => {
   return new Promise((resolve) => {
     const isOnline = () => resolve(true);
     const isOffline = () => resolve(false);
@@ -244,10 +250,8 @@ export default function useUploader(file: any, customEvents: IUploadEvents) {
   // ----------
   const uploadFile = async () => {
     /**
-     Handshake with server for initiating an upload request
-     Type is POST. Sending filename as Body. Server generates
-     a unique token for current uploading file and creates a
-     new empty file with combining token and filename.
+     Perform handshake with server for initiating an upload request.
+     Server generates a unique token for each file and returns it to client.
      */
     setStatus(FILE_STATUS.PENDING);
     ping({ url: `http://${location.hostname}:3001/heartbeat`, timeout: 500 })

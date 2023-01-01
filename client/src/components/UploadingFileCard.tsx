@@ -10,6 +10,16 @@ import useUploader from "../hooks/useUploader";
 import useRandomColors from "../hooks/useRandomColors";
 
 // ------------------------------------------------------------------------------------------
+interface IUploadingFileCard {
+  delay?: number;
+  file?: File;
+  onDelete?: (file: File | undefined | null) => {};
+  handleOnComplete: () => void;
+  handleOnPause: () => void;
+  handleOnResume: () => void;
+}
+
+// ------------------------------------------------------------------------------------------
 export default function UploadingFileCard({
   delay = 0,
   file,
@@ -18,14 +28,7 @@ export default function UploadingFileCard({
   handleOnComplete,
   handleOnPause,
   handleOnResume,
-}: {
-  delay?: number;
-  file?: File;
-  onDelete?: (file: File | undefined | null) => {};
-  handleOnComplete: () => void;
-  handleOnPause: () => void;
-  handleOnResume: () => void;
-}) {
+}: IUploadingFileCard) {
   const { color } = useRandomColors();
 
   const {

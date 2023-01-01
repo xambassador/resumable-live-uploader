@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, ReactNode } from "react";
 import { motion, useAnimation } from "framer-motion";
 
 // ------------------------------------------------------------------------------------------
@@ -47,16 +47,19 @@ const checkValidFileType = (type: string) => {
   return validTypes.find((value: string) => type.includes(value));
 };
 
+// -------------------------------
+interface IDropzone {
+  children?: ReactNode;
+  onItemsDrop?: (items: any) => void;
+  htmlFor?: string;
+}
+
 // ------------------------------------------------------------------------------------------
 export default function Dropzone({
   children,
   htmlFor = "dropzone",
   onItemsDrop = (items: any) => {},
-}: {
-  children?: any;
-  onItemsDrop?: (items: any) => void;
-  htmlFor?: string;
-}) {
+}: IDropzone) {
   const controls = useAnimation();
   const [isDragging, setIsDragging] = useState(false);
   const [isValidDragItem, setIsValidDragItem] = useState(true);

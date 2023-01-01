@@ -1,13 +1,14 @@
 import classNames from "../utils/classNames";
 import useThumbnail from "../hooks/useThumbnail";
+// ------------------------------------------------------------------------------------------
 
-export default function Thumbnail({
-  color,
-  file,
-}: {
+interface IThumbnail {
   color: string;
   file: File | undefined;
-}) {
+}
+
+// ------------------------------------------------------------------------------------------
+export default function Thumbnail({ color, file }: IThumbnail) {
   const { loading, thumbnail } = useThumbnail(file);
 
   return (
