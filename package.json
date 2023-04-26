@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "@types/byte-size": "^8.1.0"
+  }
+}

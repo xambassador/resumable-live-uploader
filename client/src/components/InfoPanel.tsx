@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
+import byteSize from "byte-size";
 // ------------------------------------------------------------------------------------------
 
 import classNames from "../utils/classNames";
@@ -71,8 +72,9 @@ export default function InfoPanel({
                 status === FILE_STATUS.FAILED ? "text-red-400" : ""
               )}
             >
-              {(uploadedBytes / 1000000).toFixed(2)} Mb /{" "}
-              {((file?.size || 1) / 1000000).toFixed(2)} Mb
+              {byteSize(uploadedBytes).toString()}
+              {" / "}
+              {byteSize(file?.size || 1).toString()}
               {(status === FILE_STATUS.ERROR ||
                 status === FILE_STATUS.FAILED) && (
                 <motion.span
